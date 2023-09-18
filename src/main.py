@@ -11,11 +11,13 @@ def main():
     GROUND_HEIGHT = 112
     GAP_SIZE = 440
     JUMP_GRAVITY = -8
-    SPEED = 3
+    SPEED = 4
     
     NEW = "new"
     OVER = "over"
     ACTIVE = "active"
+    
+    BIRD_COLOR = "red" # red, yellow, or blue
 
     pygame.init()
 
@@ -31,6 +33,8 @@ def main():
     ground_surf = pygame.image.load("assets/sprites/base.png").convert()
     ground_rect = ground_surf.get_rect(bottomleft=(0, HEIGHT))
     
+    global bottom_pipe_surf
+    global top_pipe_surf
     bottom_pipe_surf = pygame.image.load("assets/sprites/pipe-green.png").convert()
     top_pipe_surf = pygame.image.load("assets/sprites/pipe-green.png").convert()
     top_pipe_surf = pygame.transform.rotate(top_pipe_surf, 180)
@@ -39,12 +43,12 @@ def main():
     bottom_pipe_rect = bottom_pipe_surf.get_rect(topleft=(WIDTH, HEIGHT/2))
     top_pipe_rect = top_pipe_surf.get_rect(topleft=(bottom_pipe_rect.x, bottom_pipe_rect.y - GAP_SIZE))
     
-    player_surf = pygame.image.load("assets/sprites/yellowbird-upflap.png").convert()
+    player_surf = pygame.image.load("assets/sprites/" + BIRD_COLOR + "bird-upflap.png").convert()
     player_rect = player_surf.get_rect(center=(WIDTH/3, HEIGHT/3))
     rotated_player_surf = player_surf
-    up_flap_player_surf = pygame.image.load("assets/sprites/yellowbird-upflap.png").convert()
-    mid_flap_player_surf = pygame.image.load("assets/sprites/yellowbird-midflap.png").convert()
-    down_flap_player_surf = pygame.image.load("assets/sprites/yellowbird-downflap.png").convert()
+    up_flap_player_surf = pygame.image.load("assets/sprites/" + BIRD_COLOR + "bird-upflap.png").convert()
+    mid_flap_player_surf = pygame.image.load("assets/sprites/" + BIRD_COLOR + "bird-midflap.png").convert()
+    down_flap_player_surf = pygame.image.load("assets/sprites/" + BIRD_COLOR + "bird-downflap.png").convert()
     
     game_over_surf = pygame.image.load("assets/sprites/gameover.png").convert_alpha()
     game_over_rect = game_over_surf.get_rect(center=(WIDTH/2, (HEIGHT - GROUND_HEIGHT) / 2))
@@ -106,6 +110,20 @@ def main():
                 case "9":
                     score_surf.blit(surf_9, (score_width, 0))
                     score_width += surf_9.get_width()
+                    
+    def update_colors():
+        global bottom_pipe_surf
+        global top_pipe_surf
+        if score % 10 == 9:
+            bottom_pipe_surf = pygame.image.load("assets/sprites/pipe-red.png").convert()
+            top_pipe_surf = pygame.image.load("assets/sprites/pipe-red.png").convert()
+            top_pipe_surf = pygame.transform.rotate(top_pipe_surf, 180)
+            top_pipe_surf = pygame.transform.flip(top_pipe_surf, True, False)
+        else:
+            bottom_pipe_surf = pygame.image.load("assets/sprites/pipe-green.png").convert()
+            top_pipe_surf = pygame.image.load("assets/sprites/pipe-green.png").convert()
+            top_pipe_surf = pygame.transform.rotate(top_pipe_surf, 180)
+            top_pipe_surf = pygame.transform.flip(top_pipe_surf, True, False)
     
     player_gravity = 0
     time_since_flap = 100
@@ -158,6 +176,7 @@ def main():
             screen.blit(top_pipe_surf, top_pipe_rect)
             bottom_pipe_rect.x -= SPEED
             if bottom_pipe_rect.right < 0:
+                update_colors()
                 bottom_pipe_rect.x = WIDTH
                 bottom_pipe_rect.y = random.randint(int(HEIGHT/3), int(HEIGHT - GROUND_HEIGHT * 1.5))
                 new_pipe = True
